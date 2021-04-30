@@ -1,21 +1,19 @@
 <?php
-namespace Src\System;
-
 class DatabaseConnector {
 
     private $dbConnection = null;
 
     public function __construct()
     {
-        $host = getenv('DB_HOST');
-        $port = getenv('DB_PORT');
-        $db   = getenv('DB_DATABASE');
-        $user = getenv('DB_USERNAME');
-        $pass = getenv('DB_PASSWORD');
+        $host = "localhost";
+        $db_name = "scim";
+        $port = "3306";
+        $user = "root";
+        $pass = "";
 
         try {
             $this->dbConnection = new \PDO(
-                "mysql:host=$host;port=$port;charset=utf8mb4;dbname=$db",
+                "mysql:host=$host;port=$port;charset=utf8mb4;dbname=$db_name",
                 $user,
                 $pass
             );
@@ -29,3 +27,4 @@ class DatabaseConnector {
         return $this->dbConnection;
     }
 }
+?>
