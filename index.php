@@ -23,7 +23,7 @@ if ($uri[1] !== 'api') {
 
 //Get action
 $action = $uri[2];
-$possibleActions = array('Users','Token');
+$possibleActions = array('Users','Token','ResourceTypes');
 if (!isset($action,$possibleActions)) {
     abort(404,'Not found');
 }
@@ -53,28 +53,32 @@ $dbConnection = (new DatabaseConnector())->getConnection();
 
 // Users endpoint
 $requestMethod = $_SERVER["REQUEST_METHOD"];
-$route = isset($uri[3]) ? $uri[3] : '';
+$urlSecondPart = isset($uri[3]) ? '/'.$uri[3] : '';
 
+$route = $requestMethod.":".$action.$urlSecondPart;
 
-if($action == "Users"){
-    
-    $possibleRoutes = [''];
-    if (!isset($route,$possibleRoutes)) {
-        abort(404,'Not Found');
-    }
-
-    // POST
-    // Create or edit user
-    // Api/Users/
-    if($route == '' && $requestMethod == "POST"){
+//
+$response = false;
+// All routes // Method:Entity/Action
+switch($route){
+    case 'POST:Users':
         $userModel = new Users($dbConnection);
         $response = $userModel->createUserFromRequest();
+    break;
+    case 'GET:ResourceTypes':
+        $response['status_code_header'] = 'HTTP/1.1 200';
+        $response['body'] = array('Users');
+    break;
+    case 'GET:Users':
+        $response['status_code_header'] = 'HTTP/1.1 200';
+    break;
+}
 
-        header($response['status_code_header']);
-        if ($response['body']) {
-            echo json_encode($response['body']);
-        }
-        exit();
+if($response){
+    header($response['status_code_header']);
+    if (isset($response['body'])) {
+        echo json_encode($response['body']);
     }
+    exit();
 }
 abort(404,'Not Found');
